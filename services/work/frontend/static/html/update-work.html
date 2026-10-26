@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="/static/css/materialize.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/styles.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>Обновить вид работы</title>
+</head>
+
+<body class="has-fixed-sidenav">
+    <header>
+    </header>
+    <main class="white">
+        <div class="container">
+            <div class="section">
+                <h5>Внести изменения в вид работы</h5>
+                <form class="col s12" action="/work/works/update" method="post">
+                    <input name="id" type="hidden" value="{{ .ID }}">
+                    <div class="row">
+                        <div class="input-field col s8">
+                            <input id="name" name="name" value="{{ .Name | html }}" type="text" class="validate" required>
+                            <label for="name">Наименование работы</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s4">
+                            <input id="rate" name="rate" value="{{ .Rate }}" type="number" step="0.01" class="validate" required>
+                            <label for="rate">Расценка (руб.)</label>
+                        </div>
+                        <div class="input-field col s4">
+                            <input id="unit" name="unit" value="{{ .Unit | html }}" type="text" class="validate">
+                            <label for="unit">Единица измерения</label>
+                        </div>
+                    </div>
+                    <button class="waves-effect waves-blue btn-flat white blue-text" type="submit"><i
+                            class="material-icons left">done</i>Подтвердить</button>
+                    <a href="/work/works" class="waves-effect waves-blue btn-flat white blue-text" style="margin-left: 10px;">
+                        <i class="material-icons left">arrow_back</i>Назад
+                    </a>
+                </form>
+            </div>
+        </div>
+    </main>
+    <script src="/static/js/nav.js"></script>
+    <script src="/static/js/sidenav.js"></script>
+    <script src="/work/static/js/sidenav-work.js"></script>
+    <script src="/static/js/materialize.min.js"></script>
+</body>
+</html>

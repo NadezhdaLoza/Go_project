@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="/static/css/materialize.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/styles.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>Редактировать наряд</title>
+    <style>
+        .total-row {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+        .amount-cell {
+            text-align: right;
+            width: 120px;
+        }
+        .action-cell {
+            width: 60px;
+            text-align: center;
+        }
+        /* Фиксированные ширины для таблицы работ */
+        table.highlight {
+            table-layout: fixed;
+        }
+        table.highlight th:nth-child(1) { width: 35%; } /* Описание */
+        table.highlight th:nth-child(2) { width: 10%; } /* Ед. изм. */
+        table.highlight th:nth-child(3) { width: 15%; } /* Количество */
+        table.highlight th:nth-child(4) { width: 15%; } /* Цена */
+        table.highlight th:nth-child(5) { width: 15%; } /* Сумма */
+        table.highlight th:nth-child(6) { width: 10%; } /* Действия */
+        
+        /* Фиксированные ширины для таблицы исполнителей */
+        table.highlight th:nth-child(1) { width: 50%; } /* Исполнитель */
+        table.highlight th:nth-child(2) { width: 20%; } /* КТУ */
+        table.highlight th:nth-child(3) { width: 20%; } /* Сумма */
+        table.highlight th:nth-child(4) { width: 10%; } /* Действия */
+        
+        /* Фиксированные ширины для полей ввода */
+        .fixed-input {
+            width: 100%;
+        }
+        .form-row {
+            margin-bottom: 20px;
+        }
+        /* Улучшенные селекты */
+        .browser-default {
+            width: 100%;
+            height: 45px;
+            padding: 0 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+        }
+        .browser-default:focus {
+            border-color: #26a69a;
+            box-shadow: 0 1px 0 0 #26a69a;
+        }
+        /* Выравнивание меток */
+        .input-field label {
+            left: 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .input-field label.active {
+            transform: translateY(-14px) scale(0.8);
+            transform-origin: 0 0;
+        }
+        /* Стили для даты */
+        .date-input-container {
+            position: relative;
+        }
+        .date-input-container input[type="date"] {
+            padding-right: 30px;
+        }
+        .date-input-container::after {
+            content: "📅";
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body class="has-fixed-sidenav">
+    <header></header>
+    <main class="white">
+        <div class="container">
+            <div class="section">
+                <h5>Редактировать наряд №{{ .Order.OrderHeader.OrderNumber }}</h5>
+                
+                <!-- Форма редактирования заголовка -->
+                <form class="col s12" action="/documents/orders/update" method="post">
+                    <input type="hidden" name="id" value="{{ .Order.OrderHeader.ID }}">
+                    
+                    <div class="row form-row">
+                        <div class="col s6">
+                            <!-- Организация -->
+                            <div class="input-field">
+                                <select name="customer_id" class="browser-default" required>
+                                    <option value="" disabled>Выберите организацию</option>
+                                    {{ range .Organizations }}
+                                    <option value="{{ .Id }}" {{ if eq .Id $.Order.OrderHeader.CustomerID }}selected{{ end }}>
+                                        {{ .Name }}
+                                    </option>
+                                    {{ end }}
+                                </select>
+                                
+                            </div>
+                            
+                            <!-- Структурное подразделение -->
+                            <div class="input-field">
+                                <select name="department_id" class="browser-default" required>
+                                    <option value="" disabled>Выберите подразделение</option>
+                                    {{ range .Departments }}
+                                    <option value="{{ .ID }}" {{ if eq .ID $.Order.OrderHeader.DepartmentID }}selected{{ end }}>
+                                        {{ .Name }}
+                                    </option>
+                                    {{ end }}
+                                </select>
+                                
+                            </div>
+                            
+                            <!-- Бригадир -->
+                            <div class="input-field">
+                                <select name="foreman_id" class="browser-default" required>
+                                    <option value="" disabled>Выберите бригадира</option>
+                                    {{ range .Employees }}
+                                    <option value="{{ .Id }}" {{ if eq .Id $.Order.OrderHeader.ForemanID }}selected{{ end }}>
+                                        {{ .LastName }} {{ .FirstName }} {{ .MiddleName }}
+                                    </option>
+                                    {{ end }}
+                                </select>
+                                
+                            </div>
+                        </div>
+                        
+                        <div class="col s1"></div>
+                        
+                        <div class="col s5">
+                            <!-- Номер наряда -->
+                            <div class="input-field">
+                                <input id="order_number" name="order_number" type="text" 
+                                       value="{{ .Order.OrderHeader.OrderNumber }}" 
+                                       class="validate fixed-input" required>
+                                <label for="order_number" class="active">Номер наряда</label>
+                            </div>
+                            
+                            <!-- Дата наряда -->
+                            <div class="input-field date-input-container">
+                                <input id="order_date" name="order_date" type="text" 
+                                       value="{{ .Order.OrderHeader.OrderDate }}" 
+                                       class="validate fixed-input datepicker" required
+                                       placeholder="дд.мм.гггг">
+                                <label for="order_date" class="active">Дата наряда</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col s12">
+                            <button class="waves-effect waves-blue btn white blue-text" type="submit">
+                                <i class="material-icons left">done</i>Сохранить изменения
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                
+                <div class="divider" style="margin: 30px 0;"></div>
+                
+                <!-- Таблица работ -->
+                <h5>Работы в наряде</h5>
+                <a href="/documents/orders/{{ .Order.OrderHeader.ID }}/body/create" 
+                   class="waves-effect waves-blue btn-flat white blue-text">
+                    <i class="material-icons left">add</i>Добавить работу
+                </a>
+                
+                {{ if .OrderItems }}
+                <table class="highlight">
+                    <thead>
+                        <tr>
+                            <th>Описание работ</th>
+                            <th>Ед. изм.</th>
+                            <th>Количество</th>
+                            <th>Цена за ед.</th>
+                            <th class="amount-cell">Сумма</th>
+                            <th class="action-cell"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ range .OrderItems }}
+                        <tr>
+                            <td>{{ .Description }}</td>
+                            <td>{{ .Unit }}</td>
+                            <td>{{ .Quantity }}</td>
+                            <td>{{ .Rate }} руб.</td>
+                            <td class="amount-cell">{{ .Amount }} руб.</td>
+                            <td class="action-cell">
+                                <form action="/documents/orders/body/delete" method="post" style="display: inline;">
+                                    <input name="id" type="hidden" value="{{ .ID }}">
+                                    <input name="order_id" type="hidden" value="{{ $.Order.OrderHeader.ID }}">
+                                    <button type="submit" class="btn-floating btn-small waves-effect waves-light red">
+                                        <i class="material-icons">delete</i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {{ end }}
+                        <tr class="total-row">
+                            <td colspan="4"><strong>ИТОГО:</strong></td>
+                            <td class="amount-cell"><strong>{{ .TotalItems }} руб.</strong></td>
+                            <td class="action-cell"></td>
+                        </tr>
+                    </tbody>
+                </table>
+                {{ else }}
+                <p>Работы не добавлены</p>
+                {{ end }}
+                
+                <!-- Таблица исполнителей -->
+                <h5 style="margin-top: 40px;">Исполнители</h5>
+                <a href="/documents/orders/{{ .Order.OrderHeader.ID }}/performer/create" 
+                   class="waves-effect waves-blue btn-flat white blue-text">
+                    <i class="material-icons left">add</i>Добавить исполнителя
+                </a>
+                
+                {{ if .Performers }}
+                <table class="highlight">
+                    <thead>
+                        <tr>
+                            <th>Исполнитель</th>
+                            <th>КТУ</th>
+                            <th class="amount-cell">Сумма</th>
+                            <th class="action-cell"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ range .Performers }}
+                        <tr>
+                            <td>{{ .EmployeeName }}</td>
+                            <td>{{ .KTU }}</td>
+                            <td class="amount-cell">{{ .Amount }} руб.</td>
+                            <td class="action-cell">
+                                <form action="/documents/orders/performer/delete" method="post" style="display: inline;">
+                                    <input name="id" type="hidden" value="{{ .ID }}">
+                                    <input name="order_id" type="hidden" value="{{ $.Order.OrderHeader.ID }}">
+                                    <button type="submit" class="btn-floating btn-small waves-effect waves-light red">
+                                        <i class="material-icons">delete</i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {{ end }}
+                        <tr class="total-row">
+                            <td colspan="2"><strong>ИТОГО:</strong></td>
+                            <td class="amount-cell"><strong>{{ .TotalPerformers }} руб.</strong></td>
+                            <td class="action-cell"></td>
+                        </tr>
+                    </tbody>
+                </table>
+                {{ else }}
+                <p>Исполнители не добавлены</p>
+                {{ end }}
+                
+                <div class="section" style="margin-top: 40px;">
+                    <a href="/documents/orders" class="waves-effect waves-blue btn-flat white blue-text">
+                        <i class="material-icons left">arrow_back</i>Назад к списку
+                    </a>
+                    <a href="/documents/orders/details/{{ .Order.OrderHeader.ID }}" 
+                       class="waves-effect waves-blue btn white blue-text" style="margin-left: 10px;">
+                        <i class="material-icons left">visibility</i>Просмотр наряда
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script src="/static/js/nav.js"></script>
+    <script src="/static/js/sidenav.js"></script>
+    <script src="/documents/static/js/sidenav-documents.js"></script>
+    <script src="/static/js/materialize.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Инициализация select
+            var elems = document.querySelectorAll('select');
+            M.FormSelect.init(elems);
+            
+            // Инициализация datepicker
+            var dateElems = document.querySelectorAll('.datepicker');
+            M.Datepicker.init(dateElems, {
+                format: 'dd.mm.yyyy',
+                autoClose: true,
+                showClearBtn: true,
+                i18n: {
+                    cancel: 'Отмена',
+                    clear: 'Очистить',
+                    done: 'OK',
+                    months: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
+                    monthsShort: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
+                    weekdays: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'],
+                    weekdaysShort: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+                    weekdaysAbbrev: ['В', 'П', 'В', 'С', 'Ч', 'П', 'С']
+                }
+            });
+            
+            // Автоматическое форматирование даты при загрузке
+            var dateInput = document.getElementById('order_date');
+            if (dateInput && dateInput.value) {
+                var dateValue = dateInput.value.trim();
+                
+                // Если дата в формате ISO (2024-09-15T00:00:00Z)
+                if (dateValue.includes('T') && dateValue.length > 10) {
+                    // Конвертируем в формат дд.мм.гггг
+                    var isoDate = dateValue.substring(0, 10); // 2024-09-15
+                    var parts = isoDate.split('-');
+                    if (parts.length === 3) {
+                        dateInput.value = parts[2] + '.' + parts[1] + '.' + parts[0];
+                    }
+                }
+                // Если дата уже в формате YYYY-MM-DD
+                else if (/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+                    var parts = dateValue.split('-');
+                    if (parts.length === 3) {
+                        dateInput.value = parts[2] + '.' + parts[1] + '.' + parts[0];
+                    }
+                }
+            }
+            
+            // Активируем метки для полей с данными
+            var inputs = document.querySelectorAll('.input-field input');
+            inputs.forEach(function(input) {
+                if (input.value) {
+                    input.parentElement.classList.add('active');
+                }
+            });
+            
+            // Активируем метки для select
+            var selects = document.querySelectorAll('.input-field select');
+            selects.forEach(function(select) {
+                if (select.value) {
+                    select.parentElement.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

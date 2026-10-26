@@ -1,0 +1,31 @@
+# Файлы окружения и конфигурации с секретами
+.env
+.env.local
+*.env
+
+# Файлы базы данных
+*.db
+*.sqlite3
+
+# Скомпилированные бинарники Go
+*.exe
+*.dll
+*.so
+*.dylib
+bin/
+build/
+dist/
+
+# Папка vendor
+vendor/
+
+# Логи и временные файлы
+logs/
+*.log
+tmp/
+
+# IDE и ОС
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

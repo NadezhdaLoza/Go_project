@@ -1,0 +1,37 @@
+package main
+
+import (
+    "fmt"
+    "net/http"
+    "os"
+    
+    "github.com/nadezhda/documents/services/base"
+    "github.com/nadezhda/documents/services/work/backend/implementation"
+    "github.com/nadezhda/documents/services/work/backend/transport"
+    
+    kithttp "github.com/go-kit/kit/transport/http"
+    httptransport "github.com/nadezhda/documents/services/work/backend/transport/http"
+)
+
+func main() {
+    db, err := base.ConnectToDb()
+    if err != nil {
+        base.LogError(err)
+        os.Exit(-1)
+    }
+    
+    defer db.Close()
+
+    workRepo := implementation.NewWorkRepo(db)
+    svc := implementation.NewService(workRepo)
+    
+    endpoints := transport.MakeEndpoints(svc)
+    
+    h := httptransport.NewService(endpoints, []kithttp.ServerOption{})
+    
+    fmt.Println("Listening on 7079...")
+    if err := http.ListenAndServe(":7079", h); err != nil {
+        base.LogError(err)
+        os.Exit(-1)
+    }
+}

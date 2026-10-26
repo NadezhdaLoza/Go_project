@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="/static/css/materialize.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/styles.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>Добавить работу</title>
+</head>
+
+<body class="has-fixed-sidenav">
+    <header></header>
+    <main class="white">
+        <div class="container">
+            <div class="section">
+                <h5>Добавить работу в наряд №{{ .OrderNumber }}</h5>
+                
+                <form class="col s12" action="/documents/orders/body/create" method="post">
+                    <input type="hidden" name="order_id" value="{{ .OrderID }}">
+                    
+                    <div class="row">
+                        <!-- Выбор работы -->
+                        <div class="input-field col s6">
+                            <select name="work_id" id="work_select" class="browser-default" required>
+                                <option value="" disabled selected>Выберите вид работы</option>
+                                {{ range .Works }}
+                                <option value="{{ .ID }}" data-rate="{{ .Rate }}" data-unit="{{ .Unit }}">
+                                    {{ .Name }} - {{ .Rate }} руб. ({{ .Unit }})
+                                </option>
+                                {{ end }}
+                            </select>
+                            
+                        </div>
+                        
+                        <!-- Единица измерения -->
+                        <div class="input-field col s2">
+                            <input id="unit" name="unit" type="text" class="validate">
+                            <label for="unit">Ед. изм.</label>
+                        </div>
+                        
+                        <!-- Количество -->
+                        <div class="input-field col s2">
+                            <input id="quantity" name="quantity" type="number" step="0.01" min="0" 
+                                   class="validate" required>
+                            <label for="quantity">Количество</label>
+                        </div>
+                        
+                        <!-- Цена -->
+                        <div class="input-field col s2">
+                            <input id="rate" name="rate" type="number" step="0.01" min="0" 
+                                   class="validate" required>
+                            <label for="rate">Цена за ед.</label>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <!-- Описание -->
+                        <div class="input-field col s12">
+                            <textarea id="description" name="description" class="materialize-textarea"></textarea>
+                            <label for="description">Описание работы</label>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col s12">
+                            <button class="waves-effect waves-blue btn white blue-text" type="submit">
+                                <i class="material-icons left">done</i>Подтвердить
+                            </button>
+                            
+                            <a href="/documents/orders/update/{{ .OrderID }}" 
+                               class="waves-effect waves-blue btn-flat white blue-text" style="margin-left: 10px;">
+                                <i class="material-icons left">arrow_back</i>Назад
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+    
+    <script src="/static/js/nav.js"></script>
+    <script src="/static/js/sidenav.js"></script>
+    <script src="/documents/static/js/sidenav-documents.js"></script>
+    <script src="/static/js/materialize.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var elems = document.querySelectorAll('select');
+            M.FormSelect.init(elems);
+            
+            // Обработчик выбора работы
+            var workSelect = document.getElementById('work_select');
+            workSelect.addEventListener('change', function() {
+                var selectedOption = this.options[this.selectedIndex];
+                var rate = selectedOption.getAttribute('data-rate');
+                var unit = selectedOption.getAttribute('data-unit');
+                
+                document.getElementById('rate').value = rate || '';
+                document.getElementById('unit').value = unit || '';
+            });
+        });
+    </script>
+</body>
+</html>

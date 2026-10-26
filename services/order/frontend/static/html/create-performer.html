@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="/static/css/materialize.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/styles.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>Добавить исполнителя</title>
+</head>
+
+<body class="has-fixed-sidenav">
+    <header></header>
+    <main class="white">
+        <div class="container">
+            <div class="section">
+                <h5>Добавить исполнителя в наряд №{{ .OrderNumber }}</h5>
+                
+                <form class="col s12" action="/documents/orders/performer/create" method="post">
+                    <input type="hidden" name="order_id" value="{{ .OrderID }}">
+                    
+                    <div class="row">
+                        <!-- Выбор исполнителя -->
+                        <div class="input-field col s6">
+                            <select name="employee_id" class="browser-default" required>
+                                <option value="" disabled selected>Выберите исполнителя</option>
+                                {{ range .Employees }}
+                                <option value="{{ .Id }}">
+                                    {{ .LastName }} {{ .FirstName }} {{ .MiddleName }} - {{ .Post }}
+                                </option>
+                                {{ end }}
+                            </select>
+                            
+                        </div>
+                        
+                        <!-- КТУ -->
+                        <div class="input-field col s3">
+                            <input id="ktu" name="ktu" type="number" step="0.01" min="0" max="2" 
+                                   value="1.00" class="validate" required>
+                            <label for="ktu">КТУ (коэффициент)</label>
+                        </div>
+                        
+                        <!-- Сумма -->
+                        <div class="input-field col s3">
+                            <input id="amount" name="amount" type="number" step="0.01" min="0" 
+                                   class="validate" required>
+                            <label for="amount">Сумма, руб.</label>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col s12">
+                            <button class="waves-effect waves-blue btn white blue-text" type="submit">
+                                <i class="material-icons left">done</i>Подтвердить
+                            </button>
+                            
+                            <a href="/documents/orders/update/{{ .OrderID }}" 
+                               class="waves-effect waves-blue btn-flat white blue-text" style="margin-left: 10px;">
+                                <i class="material-icons left">arrow_back</i>Назад
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+    
+    <script src="/static/js/nav.js"></script>
+    <script src="/static/js/sidenav.js"></script>
+    <script src="/documents/static/js/sidenav-documents.js"></script>
+    <script src="/static/js/materialize.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var elems = document.querySelectorAll('select');
+            M.FormSelect.init(elems);
+        });
+    </script>
+</body>
+</html>

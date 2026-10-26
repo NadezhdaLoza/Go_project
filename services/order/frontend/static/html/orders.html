@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="/static/css/materialize.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/styles.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>Сдельные наряды</title>
+</head>
+
+<body class="has-fixed-sidenav">
+    <header></header>
+    <main class="white">
+        <div class="container">
+            <div class="section">
+                <h5>Сдельные наряды на выполненные работы</h5>
+                <a href="/documents/orders/create" class="waves-effect waves-blue btn-flat white blue-text">
+                    <i class="material-icons left">add</i>Добавить наряд
+                </a>
+                
+                <table class="highlight">
+                    <thead>
+                        <th>№</th>
+                        <th>Дата</th>
+                        <th>Организация</th>
+                        <th>Подразделение</th>
+                        <th>Бригадир</th>
+                        
+                        <th></th>
+                    </thead>
+                    <tbody>
+                        {{ range . }}
+                        <tr>
+                            <td>{{ .OrderNumber }}</td>
+                            <td>{{ .OrderDate }}</td>
+                            <td>{{ .Organization }}</td>
+                            <td>{{ .Department }}</td>
+                            <td>{{ .Foreman }}</td>
+                            
+                            <td>
+                                <div class="valign-wrapper right">
+                                    <form action="/documents/orders/delete" method="post" class="col">
+                                        <input name="id" type="hidden" value="{{ .Id }}">
+                                        <button type="submit" class="btn-floating z-depth-0 waves-effect waves-light margin-right">
+                                            <i class="material-icons red">delete</i>
+                                        </button>
+                                    </form>
+                                    <a href="/documents/orders/update/{{ .Id }}" class="col">
+                                        <button class="btn-floating waves-effect z-depth-0 waves-light margin-right">
+                                            <i class="material-icons orange">edit</i>
+                                        </button>
+                                    </a>
+                                    <a href="/documents/orders/details/{{ .Id }}" class="col">
+                                        <button class="btn-floating waves-effect z-depth-0 waves-light">
+                                            <i class="material-icons blue">visibility</i>
+                                        </button>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {{ else }}
+                        <tr>
+                            <td colspan="7" class="center-align">Нет созданных нарядов</td>
+                        </tr>
+                        {{ end }}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    
+    <script src="/static/js/nav.js"></script>
+    <script src="/static/js/sidenav.js"></script>
+    <script src="/documents/static/js/sidenav-documents.js"></script>
+    <script src="/static/js/materialize.min.js"></script>
+</body>
+</html>
